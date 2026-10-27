@@ -1,0 +1,153 @@
+# 🖥️ Kali Linux Pen-Testing Lab on VirtualBox
+
+
+![Kali Linux](https://img.shields.io/badge/Kali-Linux%202026.2-blue)
+
+
+![VirtualBox](https://img.shields.io/badge/Hypervisor-VirtualBox%207.2.4-lightgrey)
+
+
+![Purpose](https://img.shields.io/badge/Purpose-Ethical%20Hacking-green)
+
+
+## 📌 Overview
+This project documents how I built an isolated virtual lab for cybersecurity practice using VirtualBox and Kali Linux on Windows 11. The lab runs on a private NAT Network, so I can learn and test tools safely without risking my main computer or home network.
+
+## 🎯 Objectives
+- Install and configure VirtualBox
+- Install/import Kali Linux as a virtual machine
+- Create a private NAT Network for the lab
+- Configure network connectivity for Kali Linux
+- Assign a consistent IP address to the Kali VM
+- Verify network connectivity and DNS resolution
+- Take a clean VM snapshot for recovery
+- Document the complete setup process
+- Prepare the environment for future cybersecurity projects
+
+## 🏗️ Lab Architecture
+```
+Windows 11 Host
+   └── VirtualBox 7.2.4
+         └── NAT Network "NatNetwork" (10.0.0.0/24)
+               ├── Kali Linux VM (10.0.0.10)
+               └── Future target VMs
+```
+
+## ⚙️ Lab Configuration
+| Component | Configuration |
+|---|---|
+| Host OS | Windows 11 |
+| Host RAM | 8 GB |
+| Hypervisor | VirtualBox 7.2.4 |
+| Security OS | Kali Linux 2026.2 (pre-built VirtualBox image, amd64) |
+| Kali VM RAM / CPUs | ___ MB / ___ |
+| Virtual Network | NAT Network (NatNetwork) |
+| Network Address | 10.0.0.0/24 |
+| Kali IP Address | 10.0.0.10/24 |
+| Default Gateway | 10.0.0.1 |
+| DNS Server | 8.8.8.8 |
+
+## 🪜 Setup Procedure
+
+### Step 1: Install 7-Zip
+Kali's pre-built VM is distributed as a `.7z` archive, so I installed 7-Zip to extract it.
+
+### Step 2: Install VirtualBox
+Downloaded VirtualBox 7.2.4 for Windows from virtualbox.org. Windows asked for permission, and the publisher was verified as Oracle America, Inc.
+
+
+
+![VirtualBox Manager](images/01-virtualbox-manager.png)
+
+
+
+### Step 3: Download and Import Kali Linux
+Downloaded the pre-built VirtualBox image (`kali-linux-2026.2-virtualbox-amd64`) from kali.org/get-kali, extracted it with 7-Zip, and imported it into VirtualBox.
+
+
+
+![Kali VM](images/02-kali-vm.png)
+
+
+
+### Step 4: Create the NAT Network
+In VirtualBox: Tools > Network > NAT Networks > Create.
+- Network name: NatNetwork
+- IPv4 prefix: 10.0.0.0/24
+- DHCP: Enabled
+
+I chose a NAT Network because VMs on it can talk to each other and still reach the internet, which suits a multi-machine lab.
+
+
+
+![NAT Network](images/03-nat-network.png)
+
+
+
+### Step 5: Attach Kali to the NAT Network
+Kali's Adapter 1 was originally set to the default NAT (IP 10.0.2.15, gateway 10.0.2.2). I changed it to **NAT Network** and selected NatNetwork.
+
+
+
+![Adapter settings](images/04-adapter.png)
+
+
+
+### Step 6: Assign a Static IP
+Found my connection name with `nmcli connection show`, then set a fixed IP:
+```
+sudo nmcli connection modify "Wired connection 1" ipv4.method manual ipv4.addresses 10.0.0.10/24 ipv4.gateway 10.0.0.1 ipv4.dns 8.8.8.8
+sudo nmcli connection up "Wired connection 1"
+```
+A consistent IP makes the lab easier to document and reference.
+
+
+
+![Static IP](images/05-static-ip.png)
+
+
+
+### Step 7: Take a Clean Snapshot
+Created a snapshot named `Kali-Clean-Baseline` as a recovery point before any testing.
+
+
+
+![Snapshot](images/06-snapshot.png)
+
+
+
+## 🔎 Verification
+| Test | Command | Result |
+| Check IP | `ip a` | ✅ |
+| Ping gateway | `ping -c 4 10.0.0.1` | ✅ |
+| Test internet | `ping -c 4 8.8.8.8` | ✅ |
+| Test DNS | `ping -c 4 google.com` | ✅ |
+| Check Nmap | `nmap --version` | ✅ |
+
+
+![Verification](images/07-verification.png)
+
+
+## 💡 What I Learned
+- A standard NAT isolates each VM, while a NAT Network lets VMs talk to each other and still reach the internet.
+- A static IP and a clean snapshot make a lab predictable and easy to recover.
+- Documenting every step makes the lab easy to reproduce.
+- 
+
+## 🔐 Ethical Use
+This lab is for educational purposes only. Only test systems you own or have written permission to test.
+
+## 🚀 Next Steps
+- Add a vulnerable target (Metasploitable or DVWA) to the same network
+- Run my first Nmap scans
+- Practice vulnerability scanning and web testing
+
+## 🔗 Resources
+- 7-Zip: https://7-zip.org/download.html
+- VirtualBox: https://www.virtualbox.org/wiki/Downloads
+- Kali Linux: https://www.kali.org/get-kali/
+
+## 👤 Author
+**Chiamaka Igboanugo *
+Cybersecurity enthusiast
+LinkedIn: https://www.linkedin.com/in/chiamaka-igboanugo-462391389?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app_
